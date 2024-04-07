@@ -5,7 +5,8 @@ import psycopg
 seasonsLaLiga = ['2020/2021', '2019/2020', '2018/2019']
 seasonsPremierLeague = ['2003/2004']
 competitionsTarget = ['Premier League', 'La Liga']
-conn = psycopg.connect(dbname='project_database', user='postgres', password=1234, host='localhost', port=5432)
+conn = psycopg.connect(dbname='project_database', user='postgres', password='1234', host='localhost', port='5432')
+cur = conn.cursor()
 
 #load data from competitions
 competitions = json.load(open(os.getcwd() + '\json_loader\data\competitions.json', 'r'))
@@ -25,8 +26,15 @@ for obj in competitions:
         competitionIds.append(obj['competition_id'])
 
 #load data into database
-#for obj in competitionsList:
-    #print(obj)
+cur.execute('TRUNCATE TABLE Competitions CASCADE')
+i = 0
+for obj in competitionsList:
+    cur.execute(
+        "INSERT INTO Competitions (id, competition_id, competition_name, competition_gender, country_name, season_id, season_name) VALUES (%s,%s, %s, %s, %s, %s, %s)",
+        (i, obj['competition_id'], obj['competition_name'], obj['competition_gender'], obj['country_name'], obj['season_id'], obj['season_name'])
+    )
+    i += 1
+conn.commit()
 
 
 #load data from matches
@@ -72,3 +80,6 @@ eventTypes = []
 #load lineups data
 lineupsRoot = os.getcwd() + '\json_loader\data\lineups'
 lineupObjects = []
+
+cur.close()
+conn.close()

@@ -3,24 +3,25 @@ DROP TABLE IF EXISTS Competitions;
 
 
 CREATE TABLE Competitions (
-	competition_id INTEGER PRIMARY KEY,
+	id INTEGER PRIMARY KEY,
+	competition_id INTEGER,
 	competition_name VARCHAR(255),
 	competition_gender VARCHAR(255),
 	
 	country_name VARCHAR(255),
 	
 	season_id INTEGER UNIQUE,	-- Can only have 1 primary key
-	season_name VARCHAR(255),
+	season_name VARCHAR(255)
 	
-	match_updated DATE, 	-- Unable to use DATETIME
-	match_available DATE	-- Unable to use DATETIME
+	--match_updated DATE, 	-- Unable to use DATETIME
+	--match_available DATE	-- Unable to use DATETIME
 );
 
 
 CREATE TABLE Matches (
 	match_id INTEGER PRIMARY KEY,
 	
-	competition_id INTEGER UNIQUE,
+	competition_id INTEGER,
 	competition_name VARCHAR(255),
 	
 	country_name VARCHAR(255),
@@ -75,8 +76,5 @@ CREATE TABLE Matches (
 	last_updated DATE, 	-- Unable to use DATETIME
 	
 	
-	FOREIGN KEY (competition_id) REFERENCES Competitions(competition_id),
 	FOREIGN KEY (season_id) REFERENCES Competitions(season_id)
 );
-
-
