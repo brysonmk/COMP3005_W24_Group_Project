@@ -2,7 +2,9 @@ import json
 import os
 import psycopg
 
-seasons = ['2020/2021', '2019/2020', '2018/2019', '2003/2004']
+seasonsLaLiga = ['2020/2021', '2019/2020', '2018/2019']
+seasonsPremierLeague = ['2003/2004']
+competitionsTarget = ['Premier League', 'La Liga']
 conn = psycopg.connect(dbname='project_database', user='postgres', password=1234, host='localhost', port=5432)
 
 #load data from competitions
@@ -13,7 +15,11 @@ competitionsList = []
 competitionIds = []
 seasonIds = []
 for obj in competitions:
-    if obj['season_name'] in seasons:
+    if (obj['competition_name'] == 'Premier League') and (obj['season_name'] in seasonsPremierLeague):
+        competitionsList.append(obj)
+        seasonIds.append(obj['season_id'])
+        competitionIds.append(obj['competition_id'])
+    elif (obj['competition_name'] == 'La Liga') and (obj['season_name'] in seasonsLaLiga):
         competitionsList.append(obj)
         seasonIds.append(obj['season_id'])
         competitionIds.append(obj['competition_id'])
@@ -38,9 +44,31 @@ for file in os.listdir(matchesRoot):
             continue
         matchData = json.load(open(os.path.join(matchesRoot, file, match), 'r', encoding='utf-8'))
         for obj in matchData:
-            matchObjects.append(obj)
-            matchIds.append(obj['match_id'])
+            if obj['competition']['competition_id'] in competitionIds:
+                matchObjects.append(obj)
+                matchIds.append(obj['match_id'])
 
 #load match data into database
 #for obj in matchObjects:
 #    print(obj)
+
+
+#load data from events
+eventsRoot = os.getcwd() + '\json_loader\data\events'
+eventObjects = []
+eventTypes = []
+
+#filter events in events folder by match id                                               FORGET ABOUT THIS DO IT LATER
+#for file in os.listdir(eventsRoot):
+#    if int(file.split('.')[0]) not in matchIds:
+#        continue
+#
+#    for event in json.load(open(os.path.join(eventsRoot, file), 'r', encoding='utf-8')):
+#            eventObjects.append(event)
+#            if (event['type']['name']) not in eventTypes:
+#                eventTypes.append(event['type']['name'])
+
+
+#load lineups data
+lineupsRoot = os.getcwd() + '\json_loader\data\lineups'
+lineupObjects = []
