@@ -82,17 +82,29 @@ conn.commit()
 #load data from events
 eventsRoot = os.getcwd() + '\json_loader\data\events'
 eventObjects = []
-eventTypes = []
 
-#filter events in events folder by match id                                               FORGET ABOUT THIS DO IT LATER
-#for file in os.listdir(eventsRoot):
-#    if int(file.split('.')[0]) not in matchIds:
-#        continue
-#
-#    for event in json.load(open(os.path.join(eventsRoot, file), 'r', encoding='utf-8')):
-#            eventObjects.append(event)
-#            if (event['type']['name']) not in eventTypes:
-#                eventTypes.append(event['type']['name'])
+#filter events by match id
+for file in os.listdir(eventsRoot):
+    if int(file.split('.')[0]) not in matchIds:
+        continue
+    for event in json.load(open(os.path.join(eventsRoot, file), 'r', encoding='utf-8')):
+        if 'shot' in event:
+            if 'first_time' in event['shot']:
+                eventObjects.append(obj)
+                #cur.execute() #insert shot data into shots table (with first time as true)
+            else:
+                eventObjects.append(obj)
+                #cur.execute() #insert shot data into shots table (with first time as false)
+            continue
+        if 'pass' in event:
+            if 'through_ball' in event['pass']:
+                eventObjects.append(obj)
+                #cur.execute() #insert pass data into passes table (with through ball as true)
+            else:
+                eventObjects.append(obj)
+                #cur.execute() #insert pass data into passes table (with through ball as false)
+            continue
+#dont forget to commit
 
 
 #load lineups data
@@ -116,6 +128,7 @@ for obj in lineupObjects:
         if player['player_id'] not in playerIds:
             playerIds.append(player['player_id'])
             #cur.execute() #insert player data into players table (along with team id they are apart of)
+#dont forget to commit
 
 cur.close()
 conn.close()
