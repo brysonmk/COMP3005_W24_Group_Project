@@ -98,6 +98,24 @@ eventTypes = []
 #load lineups data
 lineupsRoot = os.getcwd() + '\json_loader\data\lineups'
 lineupObjects = []
+teamIds = []
+playerIds = []
+for lineup in os.listdir(lineupsRoot):
+    if int(lineup.split('.')[0]) not in matchIds:
+        continue
+    for obj in json.load(open(os.path.join(lineupsRoot, lineup), 'r', encoding='utf-8')):
+        lineupObjects.append(obj)
+
+
+#load lineups data into database
+for obj in lineupObjects:
+    if obj['team_id'] not in teamIds:
+        teamIds.append(obj['team_id'])
+        #cur.execute() #insert team data into teams table
+    for player in obj['lineup']:
+        if player['player_id'] not in playerIds:
+            playerIds.append(player['player_id'])
+            #cur.execute() #insert player data into players table (along with team id they are apart of)
 
 cur.close()
 conn.close()
