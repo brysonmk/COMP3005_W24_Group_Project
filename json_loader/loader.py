@@ -78,6 +78,32 @@ for obj in matchObjects:
     )
 conn.commit()
 
+#load lineups data into databse
+lineupsRoot = os.getcwd() + '\json_loader\data\lineups'
+teamIds = []
+playerIds = []
+for lineup in os.listdir(lineupsRoot):
+    if int(lineup.split('.')[0]) not in matchIds:
+        continue
+    for obj in json.load(open(os.path.join(lineupsRoot, lineup), 'r', encoding='utf-8')):
+        if obj['team_id'] not in teamIds:
+            teamIds.append(obj['team_id'])
+            cur.execute(
+                "INSERT INTO Teams (match_id, team_id, team_name) VALUES (%s,%s,%s)",
+                (int(lineup.split('.')[0]), obj['team_id'], obj['team_name'])
+            ) #insert team data into teams table
+
+        for player in obj['lineup']:
+            if player['player_id'] not in playerIds:
+                playerIds.append(player['player_id'])
+                cur.execute(
+                    "INSERT INTO Players (match_id, team_id, team_name, player_id, player_name) VALUES (%s,%s,%s,%s,%s)",
+                    (int(lineup.split('.')[0]), obj['team_id'], obj['team_name'], player['player_id'], player['player_name'])
+                ) #insert player data into players table (along with team id they are apart of)
+            else:
+                continue
+conn.commit()
+
 
 #load data from events
 eventsRoot = os.getcwd() + '\json_loader\data\events'
@@ -87,48 +113,38 @@ eventObjects = []
 for file in os.listdir(eventsRoot):
     if int(file.split('.')[0]) not in matchIds:
         continue
+
     for event in json.load(open(os.path.join(eventsRoot, file), 'r', encoding='utf-8')):
         if 'shot' in event:
             if 'first_time' in event['shot']:
-                eventObjects.append(obj)
-                #cur.execute() #insert shot data into shots table (with first time as true)
+                cur.execute(
+                    "INSERT INTO Shots (match_id, statsbomb_xg, player_id, player_name, team_id, team_name, first_time) VALUES (%s,%s,%s,%s,%s,%s,%s)",
+                    (int(file.split('.')[0]), event['shot']['statsbomb_xg'], event['player']['id'], event['player']['name'], event['team']['id'], event['team']['name'], event['shot']['first_time'])
+                ) #insert shot data into shots table (with first time as true)
             else:
-                eventObjects.append(obj)
-                #cur.execute() #insert shot data into shots table (with first time as false)
+                cur.execute(
+                    "INSERT INTO Shots (match_id, statsbomb_xg, player_id, player_name, team_id, team_name, first_time) VALUES (%s,%s,%s,%s,%s,%s,%s)",
+                    (int(file.split('.')[0]), event['shot']['statsbomb_xg'], event['player']['id'], event['player']['name'], event['team']['id'], event['team']['name'], False)
+                ) #insert shot data into shots table (with first time as false)
             continue
+
         if 'pass' in event:
+            if 'recipient' not in event['pass']:
+                event['pass']['recipient'] = {'id': None, 'name': None}
+        
             if 'through_ball' in event['pass']:
-                eventObjects.append(obj)
-                #cur.execute() #insert pass data into passes table (with through ball as true)
+                cur.execute(
+                    "INSERT INTO Passes (match_id, player_id, player_name, team_id, team_name, through_ball, recipient_id, recipient_name) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",
+                    (int(file.split('.')[0]), event['player']['id'], event['player']['name'], event['team']['id'], event['team']['name'], event['pass']['through_ball'], event['pass']['recipient']['id'], event['pass']['recipient']['name'])
+                ) #insert pass data into passes table (with through ball as true)
             else:
-                eventObjects.append(obj)
-                #cur.execute() #insert pass data into passes table (with through ball as false)
+                cur.execute(
+                    "INSERT INTO Passes (match_id, player_id, player_name, team_id, team_name, through_ball, recipient_id, recipient_name) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",
+                    (int(file.split('.')[0]), event['player']['id'], event['player']['name'], event['team']['id'], event['team']['name'], False, event['pass']['recipient']['id'], event['pass']['recipient']['name'])
+                ) #insert pass data into passes table (with through ball as false)
             continue
-#dont forget to commit
+conn.commit()
 
-
-#load lineups data
-lineupsRoot = os.getcwd() + '\json_loader\data\lineups'
-lineupObjects = []
-teamIds = []
-playerIds = []
-for lineup in os.listdir(lineupsRoot):
-    if int(lineup.split('.')[0]) not in matchIds:
-        continue
-    for obj in json.load(open(os.path.join(lineupsRoot, lineup), 'r', encoding='utf-8')):
-        lineupObjects.append(obj)
-
-
-#load lineups data into database
-for obj in lineupObjects:
-    if obj['team_id'] not in teamIds:
-        teamIds.append(obj['team_id'])
-        #cur.execute() #insert team data into teams table
-    for player in obj['lineup']:
-        if player['player_id'] not in playerIds:
-            playerIds.append(player['player_id'])
-            #cur.execute() #insert player data into players table (along with team id they are apart of)
-#dont forget to commit
 
 cur.close()
 conn.close()

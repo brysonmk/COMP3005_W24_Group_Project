@@ -1,5 +1,9 @@
-DROP TABLE IF EXISTS Matches;
-DROP TABLE IF EXISTS Competitions;
+DROP TABLE IF EXISTS Matches CASCADE;
+DROP TABLE IF EXISTS Competitions CASCADE;
+DROP TABLE IF EXISTS Shots CASCADE;
+DROP TABLE IF EXISTS Passes CASCADE;
+DROP TABLE IF EXISTS Teams CASCADE;
+DROP TABLE IF EXISTS Players CASCADE;
 
 
 CREATE TABLE Competitions (
@@ -78,4 +82,56 @@ CREATE TABLE Matches (
 	
 	FOREIGN KEY (id) REFERENCES Competitions(id),
 	FOREIGN KEY (season_id) REFERENCES Competitions(season_id)
+);
+
+CREATE TABLE Teams (
+	match_id INTEGER,
+    team_id INTEGER PRIMARY KEY,
+    team_name VARCHAR(255) UNIQUE,
+
+	FOREIGN KEY (match_id) REFERENCES Matches(match_id)
+);
+
+CREATE TABLE Players (
+	match_id INTEGER,
+    team_id INTEGER,
+	team_name VARCHAR(255),
+    player_id INTEGER PRIMARY KEY,
+    player_name VARCHAR(255) UNIQUE,
+
+	FOREIGN KEY (team_id) REFERENCES Teams(team_id),
+	FOREIGN KEY (match_id) REFERENCES Matches(match_id)
+);
+
+CREATE TABLE Shots (
+	match_id INTEGER,
+    statsbomb_xg FLOAT,
+    player_id INTEGER,
+    player_name VARCHAR(255),
+    team_id INTEGER,
+    team_name VARCHAR(255),
+    first_time BOOLEAN,
+
+	FOREIGN KEY (player_id) REFERENCES Players(player_id),
+	FOREIGN KEY (player_name) REFERENCES Players(player_name),
+	FOREIGN KEY (team_id) REFERENCES Teams(team_id),
+	FOREIGN KEY (team_name) REFERENCES Teams(team_name),
+	FOREIGN KEY (match_id) REFERENCES Matches(match_id)
+);
+
+CREATE TABLE Passes (
+	match_id INTEGER,
+    player_id INTEGER,
+    player_name VARCHAR(255),
+    team_id INTEGER,
+    team_name VARCHAR(255),
+    through_ball BOOLEAN,
+	recipient_id INTEGER,
+    recipient_name VARCHAR(255),
+
+	FOREIGN KEY (player_id) REFERENCES Players(player_id),
+	FOREIGN KEY (player_name) REFERENCES Players(player_name),
+	FOREIGN KEY (team_id) REFERENCES Teams(team_id),
+	FOREIGN KEY (team_name) REFERENCES Teams(team_name),
+	FOREIGN KEY (match_id) REFERENCES Matches(match_id)
 );
