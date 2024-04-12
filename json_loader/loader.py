@@ -143,6 +143,24 @@ for file in os.listdir(eventsRoot):
                     (int(file.split('.')[0]), event['player']['id'], event['player']['name'], event['team']['id'], event['team']['name'], False, event['pass']['recipient']['id'], event['pass']['recipient']['name'])
                 ) #insert pass data into passes table (with through ball as false)
             continue
+        if 'dribble' in event:
+            if event['dribble']['outcome']['name'] == 'Complete':
+                cur.execute(
+                    "INSERT INTO Dribbles (match_id, player_id, player_name, team_id, team_name, complete) VALUES (%s,%s,%s,%s,%s,%s)",
+                    (int(file.split('.')[0]), event['player']['id'], event['player']['name'], event['team']['id'], event['team']['name'], True)
+                )
+            else:
+                cur.execute(
+                    "INSERT INTO Dribbles (match_id, player_id, player_name, team_id, team_name, complete) VALUES (%s,%s,%s,%s,%s,%s)",
+                    (int(file.split('.')[0]), event['player']['id'], event['player']['name'], event['team']['id'], event['team']['name'], False)
+                )
+            continue
+        if event['type']['name'] == 'Dribbled Past':
+            cur.execute(
+                "INSERT INTO DribbledPast (match_id, player_id, player_name, team_id, team_name) VALUES (%s,%s,%s,%s,%s)",
+                (int(file.split('.')[0]), event['player']['id'], event['player']['name'], event['team']['id'], event['team']['name'])
+            )
+            continue
 conn.commit()
 
 
