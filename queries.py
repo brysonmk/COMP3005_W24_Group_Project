@@ -168,7 +168,18 @@ def Q_1(cursor, conn, execution_time):
     #==========================================================================
     # Enter QUERY within the quotes:
 
-    query = """ """
+    query = """SELECT s.player_name, AVG(s.statsbomb_xg) AS avg_xg
+                FROM (
+                    SELECT *
+                    FROM (
+                        SELECT *
+                        FROM matches
+                        WHERE id = 0
+                    ) m
+                    JOIN Shots s ON m.match_id = s.match_id
+                ) s
+                GROUP BY s.player_name
+                ORDER BY avg_xg DESC; """
 
     #==========================================================================
 
@@ -206,7 +217,19 @@ def Q_3(cursor, conn, execution_time):
     #==========================================================================    
     # Enter QUERY within the quotes:
     
-    query = """ """
+    query = """SELECT s.player_name, COUNT(*) AS firstTime_shots
+                FROM (
+                    SELECT *
+                    FROM (
+                        SELECT *
+                        FROM matches
+                        WHERE id = 0 OR id = 1 OR id = 2
+                    ) m
+                    JOIN Shots s ON m.match_id = s.match_id
+                ) s
+                WHERE first_time = true
+                GROUP BY s.player_name
+                ORDER BY firstTime_shots DESC;"""
 
     #==========================================================================
 
@@ -242,7 +265,19 @@ def Q_5(cursor, conn, execution_time):
     #==========================================================================    
     # Enter QUERY within the quotes:
     
-    query = """ """
+    query = """SELECT p.player_name, COUNT(*) AS recipient
+                FROM (
+                    SELECT *
+                    FROM (
+                        SELECT *
+                        FROM matches
+                        WHERE id = 3
+                    ) m
+                    JOIN Passes p ON m.match_id = p.match_id
+                ) p
+                WHERE p.recipient_id IS NOT NULL
+                GROUP BY p.player_name
+                ORDER BY recipient DESC; """
 
     #==========================================================================
 
@@ -278,7 +313,19 @@ def Q_7(cursor, conn, execution_time):
     #==========================================================================    
     # Enter QUERY within the quotes:
     
-    query = """ """
+    query = """SELECT p.player_name, COUNT(*) AS through_balls
+                FROM (
+                    SELECT *
+                    FROM (
+                        SELECT *
+                        FROM matches
+                        WHERE id = 0
+                    ) m
+                    JOIN Passes p ON m.match_id = p.match_id
+                ) p
+                WHERE p.through_ball = true
+                GROUP BY p.player_name
+                ORDER BY through_balls DESC; """
 
     #==========================================================================
 
