@@ -361,7 +361,19 @@ def Q_9(cursor, conn, execution_time):
     #==========================================================================    
     # Enter QUERY within the quotes:
     
-    query = """ """
+    query = """ SELECT s.player_name, COUNT(*) AS completed_dribbles
+                FROM (
+                    SELECT *
+                    FROM (
+                        SELECT *
+                        FROM matches
+                        WHERE id = 0 OR id = 1 OR id = 2
+                    ) m
+                    JOIN Dribbles d ON m.match_id = d.match_id
+                    WHERE d.complete = true
+                ) s
+                GROUP BY s.player_name
+                ORDER BY completed_dribbles DESC;"""
 
     #==========================================================================
 
