@@ -4,6 +4,8 @@ DROP TABLE IF EXISTS Shots CASCADE;
 DROP TABLE IF EXISTS Passes CASCADE;
 DROP TABLE IF EXISTS Teams CASCADE;
 DROP TABLE IF EXISTS Players CASCADE;
+DROP TABLE IF EXISTS Dribbles CASCADE;
+DROP TABLE IF EXISTS DribbledPast CASCADE;
 
 
 CREATE TABLE Competitions (
@@ -128,6 +130,35 @@ CREATE TABLE Passes (
     through_ball BOOLEAN,
 	recipient_id INTEGER,
     recipient_name VARCHAR(255),
+
+	FOREIGN KEY (player_id) REFERENCES Players(player_id),
+	FOREIGN KEY (player_name) REFERENCES Players(player_name),
+	FOREIGN KEY (team_id) REFERENCES Teams(team_id),
+	FOREIGN KEY (team_name) REFERENCES Teams(team_name),
+	FOREIGN KEY (match_id) REFERENCES Matches(match_id)
+);
+
+CREATE TABLE Dribbles (
+	match_id INTEGER,
+    player_id INTEGER,
+    player_name VARCHAR(255),
+    team_id INTEGER,
+    team_name VARCHAR(255),
+	complete BOOLEAN,
+
+	FOREIGN KEY (player_id) REFERENCES Players(player_id),
+	FOREIGN KEY (player_name) REFERENCES Players(player_name),
+	FOREIGN KEY (team_id) REFERENCES Teams(team_id),
+	FOREIGN KEY (team_name) REFERENCES Teams(team_name),
+	FOREIGN KEY (match_id) REFERENCES Matches(match_id)
+);
+
+CREATE TABLE DribbledPast (
+	match_id INTEGER,
+    player_id INTEGER,
+    player_name VARCHAR(255),
+    team_id INTEGER,
+    team_name VARCHAR(255),
 
 	FOREIGN KEY (player_id) REFERENCES Players(player_id),
 	FOREIGN KEY (player_name) REFERENCES Players(player_name),
